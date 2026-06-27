@@ -1,5 +1,5 @@
 from django.db import models
-
+from .managers import ArticleQuerySet 
 # Create your models here.
 
 class Source(models.Model):
@@ -57,6 +57,8 @@ class Article(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = ArticleQuerySet.as_manager()
 
     def __str__(self):
         return self.title
