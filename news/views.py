@@ -9,6 +9,8 @@ from rest_framework import generics
 class ArticleListView(generics.ListAPIView):
     queryset = Article.objects.select_related('source').all()
     serializer_class = ArticleSerializer
+    filterset_fields = ['status', 'source']
+    search_fields = ['title', 'content']
 
 
 class ArticleDetailView(generics.RetrieveAPIView):
