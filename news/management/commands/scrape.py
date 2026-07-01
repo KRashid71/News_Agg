@@ -34,7 +34,7 @@ class Command(BaseCommand):
         # self.stdout.write(f" Fetched {source.url} successfully")
 
         source.last_scraped_at = timezone.now()
-        source.save(update_fields=['last_scrapped_at'])
+        source.save(update_fields=['last_scraped_at'])
 
     def parse_articles(self, soup, source):
         created = []
@@ -44,6 +44,9 @@ class Command(BaseCommand):
             title = link.get_text(strip=True)
 
             if '/news/' not in href or not title:
+                continue
+            # skip news categories/sections
+            if not href.rstrip('/').split('-')[-1].isdigit():
                 continue
 
             #Build full URL if relative
