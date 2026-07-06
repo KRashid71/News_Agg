@@ -33,6 +33,9 @@ class Command(BaseCommand):
         self.stdout.write(f" Found {len(articles)} new articles")
         # self.stdout.write(f" Fetched {source.url} successfully")
 
+        for article in articles:
+            self.fetch_content(article)
+
         source.last_scraped_at = timezone.now()
         source.save(update_fields=['last_scraped_at'])
 
@@ -69,3 +72,25 @@ class Command(BaseCommand):
             created.append(article)
         
         return created
+    
+    def fetch_content(self, article):
+        config = article.source.scrape_config
+        if not config.get('content_tag'):
+            return
+        
+        try:
+            response = requests.get(article.url,timeout=30)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            self.stdout.write(self.style.ERROR(f"   Failed to fetch {article.url}: {e}"))
+            return
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        body = soup.find(config['content_tag'], class_=config.get('content_class', ''))
+
+        if body:
+            article.content = body.get_text(separator='\n',strip=True)
+            article.save(update_fields=['content'])
+            self.stdout.write(f"    Fetched content: {len(article.content)} chars")
+        else:
+            self.stdout.write(self.style.WARNING(f"     No content found for:{article.title[:50]}"))
