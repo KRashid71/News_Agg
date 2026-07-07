@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Source, Article
+from .models import Source, Article, ArticleAnalysis
 
 # Register your models here.
 @admin.register(Source)
@@ -15,3 +15,10 @@ class ArticleAdmin(admin.ModelAdmin):
     list_filter = ['status', 'source']
     search_fields = ['title', 'content']
     readonly_fields = ['scraped_at', 'created_at', 'updated_at']
+
+@admin.register(ArticleAnalysis)
+class ArticleAnalysisAdmin(admin.ModelAdmin):
+    list_display = ['article', 'sentiment_label','sentiment_score','analyzed_at']
+    list_filter = ['sentiment_label']
+    readonly_fields = ['article', 'sentiment_score', 'sentiment_label', 'analyzed_at']
+    

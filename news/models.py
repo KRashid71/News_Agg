@@ -65,3 +65,29 @@ class Article(models.Model):
     
     class Meta:
         ordering = ['-published_at']
+
+class ArticleAnalysis(models.Model):
+    article = models.OneToOneField(
+        Article,
+        on_delete=models.CASCADE,
+        related_name='analysis',
+    )
+    sentiment_score = models.FloatField(null=True,blank=True,
+                                        help_text="Confidence score from 0.0 to 1.0",)
+    sentiment_label = models.CharField(
+        max_length=10,
+        choices=[
+            ('positive','Positive'),
+            ('negative','Negative'),
+            ('neutral','Neutral'),
+        ],
+        blank=True,
+        default='',
+    )
+    analyzed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Analysis:{self.article.title[:50]}"
+    
+    class Meta:
+        verbose_name_plural = "Article analyses"
